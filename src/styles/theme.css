@@ -1,0 +1,44 @@
+/* Theme stylesheet for Uma Dental Clinic 3D funnel */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap');
+
+:root {
+    /* Primary teal (calm) */
+    --color-primary: hsl(210, 45%, 55%);
+    /* Accent orange (attention) */
+    --color-accent: hsl(30, 80%, 55%);
+    /* Background gradients */
+    --gradient-bg: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+}
+
+/* Tailwind base overrides */
+@layer base {
+    body {
+        @apply font-body bg-slate-900 text-gray-100 antialiased;
+        font-family: 'Inter', sans-serif;
+    }
+}
+
+/* Custom utilities */
+@layer utilities {
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .text-primary {
+        color: var(--color-primary);
+    }
+
+    .bg-primary {
+        background-color: var(--color-primary);
+    }
+
+    .text-accent {
+        color: var(--color-accent);
+    }
+
+    .bg-accent {
+        background-color: var(--color-accent);
+    }
+}
