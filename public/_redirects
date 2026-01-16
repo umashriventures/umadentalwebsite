@@ -1,0 +1,5 @@
+/*
+  Redirect all routes to index.html so React Router can handle them.
+  This prevents "Page Not Found" on Netlify when refreshing or navigating to /pharma.
+*/
+/*  /index.html  200
