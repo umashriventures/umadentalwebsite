@@ -39,7 +39,7 @@ function App() {
             <Navbar theme={theme} toggleTheme={toggleTheme} />
 
             <main>
-                <Hero3D />
+                <Hero3D theme={theme} />
 
                 <StorySection id="about" title="The Biology of Care">
                     <p>

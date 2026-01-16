@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
 // --- MATERIALS ---
+// Dynamic updates handled in HeroScene
 const matWhite = new THREE.MeshPhysicalMaterial({
     color: "#ffffff", roughness: 0.7, metalness: 0.1, clearcoat: 0.05
 });
@@ -89,7 +90,7 @@ function Stethoscope(props) {
                 <capsuleGeometry args={[0.08, 1, 4, 16]} />
                 <primitive object={matSilver} />
             </mesh>
-            <mesh position={[0, 0.5, 0]} rotation={[0, 0, -Math.PI / 4]}> {/* Corrected position logic simplified */}
+            <mesh position={[0, 0.5, 0]} rotation={[0, 0, -Math.PI / 4]}>
                 {/* Visual simplification: Just the loop and chest piece is enough to read as "medical" */}
             </mesh>
         </group>
@@ -140,15 +141,31 @@ function MedicalKit() {
     );
 }
 
-function HeroScene() {
+function HeroScene({ theme }) {
+    const isDark = theme === 'dark';
+
+    React.useEffect(() => {
+        // Adjust materials based on theme
+        if (isDark) {
+            matWhite.color.set("#ffffff");
+            matBlue.color.set("#60a5fa");
+            matPaste.color.set("#93c5fd");
+        } else {
+            // Light Mode: Darker/Greyer to stand out on white
+            matWhite.color.set("#cbd5e1"); // Slate-300
+            matBlue.color.set("#3b82f6"); // Darker Blue
+            matPaste.color.set("#60a5fa");
+        }
+    }, [isDark]);
+
     return (
         <>
             <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} />
 
-            {/* Soft, Clinical but Warm Lighting */}
-            <ambientLight intensity={0.7} />
-            <spotLight position={[5, 10, 5]} angle={0.5} penumbra={1} intensity={1} color="#ffffff" castShadow />
-            <pointLight position={[-5, -5, 5]} intensity={0.5} color="#dbeafe" />
+            {/* Lighting Adjustment for Theme */}
+            <ambientLight intensity={isDark ? 0.7 : 0.9} />
+            <spotLight position={[5, 10, 5]} angle={0.5} penumbra={1} intensity={isDark ? 1 : 1.2} color="#ffffff" castShadow />
+            <pointLight position={[-5, -5, 5]} intensity={0.5} color={isDark ? "#dbeafe" : "#94a3b8"} />
 
             <MedicalKit />
 
@@ -157,16 +174,15 @@ function HeroScene() {
     );
 }
 
-export default function Hero3D() {
-    return (
-        <section id="home" className="h-[90vh] w-full relative bg-[#051124] overflow-hidden">
-            {/* Dark Navy Background */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#0f2942] to-[#051124] z-0" />
+export default function Hero3D({ theme }) {
+    const isDark = theme === 'dark';
 
+    return (
+        <section id="home" className="h-[90vh] w-full relative bg-slate-50 dark:bg-[#051124] transition-colors duration-500 overflow-hidden">
             <div className="absolute inset-0 z-10">
                 <Canvas shadows dpr={[1, 2]}>
                     <Suspense fallback={null}>
-                        <HeroScene />
+                        <HeroScene theme={theme} />
                         <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} maxPolarAngle={Math.PI / 1.8} minPolarAngle={Math.PI / 2.2} rotateSpeed={0.5} />
                     </Suspense>
                 </Canvas>
@@ -176,7 +192,7 @@ export default function Hero3D() {
             <div className="relative z-20 flex flex-col items-center justify-end h-full pb-20 text-center px-4 pointer-events-none">
                 <div className="mb-8">
                     <motion.p
-                        className="text-blue-200 font-medium text-sm md:text-base mb-4 tracking-[0.2em] uppercase"
+                        className="text-slate-600 dark:text-blue-200 font-medium text-sm md:text-base mb-4 tracking-[0.2em] uppercase"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
@@ -185,31 +201,17 @@ export default function Hero3D() {
                     </motion.p>
 
                     <motion.h1
-                        className="font-serif text-4xl md:text-6xl font-bold text-white tracking-wide"
+                        className="font-serif text-4xl md:text-6xl font-bold text-slate-900 dark:text-white tracking-wide"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
                     >
-                        Uma <span className="text-blue-400">Dental</span>
+                        Uma <span className="text-primary">Dental</span>
                     </motion.h1>
                 </div>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.8 }}
-                    className="pointer-events-auto"
-                >
-                    <a
-                        href="#about"
-                        className="text-white/80 hover:text-white text-sm font-light border-b border-white/20 hover:border-white transition-all pb-1"
-                    >
-                        Experience Modern Dentistry
-                    </a>
-                </motion.div>
             </div>
 
-            <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#051124] to-transparent z-10"></div>
         </section>
     );
 }

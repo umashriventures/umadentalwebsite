@@ -24,6 +24,7 @@ export default function CTAButton() {
 
     return (
         <>
+            {/* Floating button removed as per request
             <motion.button
                 className="fixed bottom-8 right-8 z-40 bg-accent text-white p-4 rounded-full shadow-[0_0_30px_rgba(242,153,74,0.4)] flex items-center justify-center group"
                 whileHover={{ scale: 1.1 }}
@@ -35,6 +36,7 @@ export default function CTAButton() {
                     Book Appointment
                 </span>
             </motion.button>
+            */}
 
             <AnimatePresence>
                 {isOpen && (
