@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero3D from './components/Hero3D';
 import StorySection from './components/StorySection';
@@ -6,41 +7,15 @@ import Gallery from './components/Gallery';
 import DoctorList from './components/DoctorList';
 import Footer from './components/Footer';
 import CTAButton from './components/CTAButton';
+import PharmaLogin from './components/pharma/PharmaLogin';
+import PharmaDashboard from './components/pharma/PharmaDashboard';
 
-function App() {
-    const [theme, setTheme] = useState('light');
-
-    useEffect(() => {
-        // Check for saved preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            setTheme(savedTheme);
-        }
-    }, []);
-
-    useEffect(() => {
-        // Apply class to HTML for Tailwind dark: support
-        if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            document.documentElement.setAttribute('data-theme', 'light');
-        }
-        localStorage.setItem('theme', theme);
-    }, [theme]);
-
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
-    };
-
+function Home({ theme, toggleTheme }) {
     return (
-        <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-500">
+        <>
             <Navbar theme={theme} toggleTheme={toggleTheme} />
-
             <main>
                 <Hero3D theme={theme} />
-
                 <StorySection id="about" title="The Biology of Care">
                     <p>
                         At Uma Dental Clinic, we view dentistry as a bridge between human biology and modern art.
@@ -69,9 +44,45 @@ function App() {
                 <Gallery />
                 <DoctorList />
             </main>
-
             <Footer />
             <CTAButton />
+        </>
+    );
+}
+
+function App() {
+    const [theme, setTheme] = useState('light');
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    };
+
+    return (
+        <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-500">
+            <Routes>
+                <Route path="/" element={<Home theme={theme} toggleTheme={toggleTheme} />} />
+                <Route path="/pharma" element={<PharmaLogin />} />
+                <Route path="/pharma/dashboard" element={<PharmaDashboard />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
         </div>
     );
 }
