@@ -1,16 +1,63 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, orderBy, getDocs, where } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, where, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Printer, LogOut, ChevronRight, FileText, Search, User, Calendar, Pill } from 'lucide-react';
+import { Printer, LogOut, ChevronRight, FileText, Search, User, Calendar, Pill, CheckCircle, RefreshCcw } from 'lucide-react';
 
 export default function PharmaDashboard() {
     const [prescriptions, setPrescriptions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [processingId, setProcessingId] = useState(null);
     const [selectedPresc, setSelectedPresc] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [lang, setLang] = useState(localStorage.getItem('pharma_lang') || 'en');
     const navigate = useNavigate();
+
+    const t = {
+        en: {
+            portalTitle: "Uma Pharma Portal",
+            pharmacistRoot: "Pharmacist Root",
+            searchPlaceholder: "Search patients...",
+            pendingOrders: "Pending Orders",
+            digitalPrescription: "Digital Prescription",
+            markAsDone: "Mark as Done",
+            print: "Print Prescription",
+            processing: "Processing...",
+            handwrittenScribble: "Handwritten Scribble",
+            doctorHandwriting: "Doctor's original handwriting and marks",
+            selectPatient: "Select a patient",
+            pickOrder: "Pick a pending order to view the scribble and print the prescription.",
+            patientName: "Patient Name",
+            date: "Date",
+            noScribble: "No scribble data found for this prescription.",
+            systemFooter: "Electronic Prescription Signature - Dr. Ravindra Singh"
+        },
+        hi: {
+            portalTitle: "उमा फार्मा पोर्टल",
+            pharmacistRoot: "फार्मासिस्ट रूट",
+            searchPlaceholder: "मरीजों को खोजें...",
+            pendingOrders: "लंबित आदेश",
+            digitalPrescription: "डिजिटल पर्चा",
+            markAsDone: "पूर्ण चिह्नित करें",
+            print: "पर्चा प्रिंट करें",
+            processing: "प्रक्रिया चल रही है...",
+            handwrittenScribble: "हस्तलिखित स्क्रिबल",
+            doctorHandwriting: "डॉक्टर की मूल लिखावट और निशान",
+            selectPatient: "मरीज चुनें",
+            pickOrder: "स्क्रिबल देखने और पर्चे को प्रिंट करने के लिए लंबित आदेश चुनें।",
+            patientName: "मरीज का नाम",
+            date: "तारीख",
+            noScribble: "इस पर्चे के लिए कोई स्क्रिबल डेटा नहीं मिला।",
+            systemFooter: "इलेक्ट्रॉनिक पर्चा हस्ताक्षर - डॉ. रवींद्र सिंह"
+        }
+    };
+
+    const toggleLang = () => {
+        const newLang = lang === 'en' ? 'hi' : 'en';
+        setLang(newLang);
+        localStorage.setItem('pharma_lang', newLang);
+    };
 
     useEffect(() => {
         const isAuth = localStorage.getItem('pharma_auth');
@@ -18,6 +65,10 @@ export default function PharmaDashboard() {
             navigate('/pharma');
         } else {
             fetchPrescriptions();
+
+            // Auto-refresh every 30 seconds for high-volume OPD days
+            const interval = setInterval(fetchPrescriptions, 30000);
+            return () => clearInterval(interval);
         }
     }, [navigate]);
 
@@ -44,6 +95,30 @@ export default function PharmaDashboard() {
             // If there's an index error, Firestore usually provides a link in the console
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleMarkAsDone = async (prescId) => {
+        if (!prescId) return;
+        setProcessingId(prescId);
+        try {
+            const prescRef = doc(db, 'prescriptions', prescId);
+            await updateDoc(prescRef, {
+                status: 'DONE',
+                completedAt: new Date(),
+                completedBy: 'Pharmacist'
+            });
+
+            // Success: Remove from local list and clear selection
+            setPrescriptions(prev => prev.filter(p => p.id !== prescId));
+            if (selectedPresc?.id === prescId) {
+                setSelectedPresc(null);
+            }
+        } catch (error) {
+            console.error("Error marking as done:", error);
+            alert("Failed to update status. Please try again.");
+        } finally {
+            setProcessingId(null);
         }
     };
 
@@ -118,12 +193,12 @@ export default function PharmaDashboard() {
                     </div>
                     <div class="patient-info">
                         <div>
-                            <div class="label">Patient Name</div>
+                            <div class="label">${t[lang].patientName}</div>
                             <div class="val">${presc.patientName}</div>
                         </div>
                         <div style="text-align: right;">
-                            <div class="label">Date</div>
-                            <div class="val">${new Date(presc.createdAt?.seconds * 1000).toLocaleDateString()}</div>
+                            <div class="label">${t[lang].date}</div>
+                            <div class="val">${new Date(presc.createdAt?.seconds * 1000).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US')}</div>
                         </div>
                     </div>
 
@@ -136,7 +211,7 @@ export default function PharmaDashboard() {
                     </div>
 
                     <div class="footer">
-                        Electronic Prescription Signature - Dr. Ravindra Singh
+                        ${t[lang].systemFooter}
                     </div>
                     <script>
                         window.onload = () => {
@@ -168,16 +243,31 @@ export default function PharmaDashboard() {
                 <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <FileText className="w-6 h-6 text-primary" />
-                        <h1 className="font-serif font-bold text-xl">Uma Pharma Portal</h1>
+                        <h1 className="font-serif font-bold text-xl">{t[lang].portalTitle}</h1>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="hidden sm:inline text-sm text-slate-500 font-medium">Pharmacist Root</span>
                         <button
-                            onClick={handleLogout}
-                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-600 dark:text-slate-400"
+                            onClick={toggleLang}
+                            className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-bold text-primary transition-all hover:scale-105 active:scale-95 border border-slate-200 dark:border-slate-700"
                         >
-                            <LogOut className="w-5 h-5" />
+                            {lang === 'en' ? 'हिन्दी' : 'English'}
                         </button>
+                        <span className="hidden sm:inline text-sm text-slate-500 font-medium">{t[lang].pharmacistRoot}</span>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={fetchPrescriptions}
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                title="Refresh"
+                            >
+                                <RefreshCcw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-600 dark:text-slate-400"
+                            >
+                                <LogOut className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -189,7 +279,7 @@ export default function PharmaDashboard() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search patients..."
+                            placeholder={t[lang].searchPlaceholder}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm"
@@ -198,7 +288,7 @@ export default function PharmaDashboard() {
 
                     <div className="flex-1 bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden flex flex-col shadow-sm">
                         <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/10">
-                            <h2 className="font-bold text-sm text-slate-500 uppercase tracking-wider">Pending Orders</h2>
+                            <h2 className="font-bold text-sm text-slate-500 uppercase tracking-wider">{t[lang].pendingOrders}</h2>
                         </div>
 
                         <div className="flex-1 overflow-y-auto max-h-[60vh] lg:max-h-[calc(100vh-280px)]">
@@ -217,7 +307,7 @@ export default function PharmaDashboard() {
                                 >
                                     <div className="text-left">
                                         <p className="font-semibold text-slate-900 dark:text-white">{presc.patientName}</p>
-                                        <p className="text-xs text-slate-500">{new Date(presc.createdAt?.seconds * 1000).toLocaleDateString()}</p>
+                                        <p className="text-xs text-slate-500">{new Date(presc.createdAt?.seconds * 1000).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US')}</p>
                                     </div>
                                     <ChevronRight className={`w-4 h-4 transition-transform ${selectedPresc?.id === presc.id ? 'translate-x-1 text-primary' : 'text-slate-300'}`} />
                                 </button>
@@ -240,24 +330,34 @@ export default function PharmaDashboard() {
                                 <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase rounded-md tracking-wider">Digital Prescription</span>
-                                            <span className="text-slate-400 text-xs">{new Date(selectedPresc.createdAt?.seconds * 1000).toLocaleString()}</span>
+                                            <span className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase rounded-md tracking-wider">{t[lang].digitalPrescription}</span>
+                                            <span className="text-slate-400 text-xs">{new Date(selectedPresc.createdAt?.seconds * 1000).toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-US')}</span>
                                         </div>
                                         <h2 className="text-3xl font-serif font-bold text-slate-900 dark:text-white">{selectedPresc.patientName}</h2>
                                     </div>
-                                    <button
-                                        onClick={() => handlePrint(selectedPresc)}
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary/20"
-                                    >
-                                        <Printer className="w-5 h-5" />
-                                        Print Prescription
-                                    </button>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => handleMarkAsDone(selectedPresc.id)}
+                                            disabled={processingId === selectedPresc.id}
+                                            className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all disabled:opacity-50"
+                                        >
+                                            <CheckCircle className={`w-5 h-5 ${processingId === selectedPresc.id ? 'animate-pulse text-emerald-500' : ''}`} />
+                                            {processingId === selectedPresc.id ? t[lang].processing : t[lang].markAsDone}
+                                        </button>
+                                        <button
+                                            onClick={() => handlePrint(selectedPresc)}
+                                            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary/20"
+                                        >
+                                            <Printer className="w-5 h-5" />
+                                            {t[lang].print}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="flex-1 p-8 bg-slate-50 dark:bg-slate-900/50 flex flex-col items-center justify-center min-h-[500px]">
                                     <div className="w-full max-w-2xl aspect-[3/4] bg-white dark:bg-slate-800 rounded-2xl shadow-inner border border-slate-200 dark:border-slate-700 relative overflow-hidden p-6">
                                         <div className="absolute top-4 left-6 text-[10px] font-bold text-slate-300 uppercase tracking-widest pointer-events-none">
-                                            Handwritten Scribble
+                                            {t[lang].handwrittenScribble}
                                         </div>
                                         <svg viewBox={activeScribble.viewBox} className="w-full h-full drop-shadow-md">
                                             {activeScribble.paths.map((d, idx) => (
@@ -279,15 +379,15 @@ export default function PharmaDashboard() {
 
                                     <div className="mt-6 flex items-center gap-2 text-slate-400 text-sm italic">
                                         <Pill className="w-4 h-4" />
-                                        Doctor's original handwriting and marks
+                                        {t[lang].doctorHandwriting}
                                     </div>
                                 </div>
                             </motion.div>
                         ) : (
                             <div className="h-full border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl flex flex-col items-center justify-center p-12 text-center text-slate-400 bg-white/50 dark:bg-transparent">
                                 <FileText className="w-16 h-16 mb-6 opacity-20" />
-                                <p className="text-lg font-medium">Select a patient</p>
-                                <p className="max-w-xs text-sm mt-2">Pick a pending order to view the scribble and print the prescription.</p>
+                                <p className="text-lg font-medium">{t[lang].selectPatient}</p>
+                                <p className="max-w-xs text-sm mt-2">{t[lang].pickOrder}</p>
                             </div>
                         )}
                     </AnimatePresence>
