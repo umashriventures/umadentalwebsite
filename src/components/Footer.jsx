@@ -26,7 +26,7 @@ export default function Footer() {
                 </div>
 
                 <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 text-center text-slate-400 dark:text-slate-500 text-sm">
-                    © {new Date().getFullYear()} Uma Dental Clinic. All Rights Reserved.
+                    © {new Date().getFullYear()} Made with ❤️ by Umashree Ventures
                 </div>
             </div>
         </footer>
