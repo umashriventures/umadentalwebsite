@@ -5,6 +5,7 @@ import Hero3D from './components/Hero3D';
 import StorySection from './components/StorySection';
 import Gallery from './components/Gallery';
 import DoctorList from './components/DoctorList';
+import TeamSection from './components/TeamSection';
 import Footer from './components/Footer';
 import CTAButton from './components/CTAButton';
 import PharmaLogin from './components/pharma/PharmaLogin';
@@ -36,12 +37,13 @@ function Home({ theme, toggleTheme }) {
                     <ul className="list-disc list-inside space-y-3 text-slate-700 font-medium">
                         <li><span className="text-primary font-bold">Bite Arc Alignment</span>: Invisible Systems</li>
                         <li><span className="text-primary font-bold">Biocompatible Integration</span>: Titanium Implants</li>
-                        <li><span className="text-primary font-bold">Structural Symmetry</span>: 3D Mapping</li>
+                        <li><span className="text-primary font-bold">Crown Capping</span>: Seamless Restoration</li>
                         <li><span className="text-primary font-bold">Nerve-First Care</span>: Laser Precision</li>
                     </ul>
                 </StorySection>
 
                 <Gallery />
+                <TeamSection />
                 <DoctorList />
             </main>
             <Footer />

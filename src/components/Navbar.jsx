@@ -26,6 +26,9 @@ export default function Navbar({ theme, toggleTheme }) {
                     <a href="#services" className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
                         Services
                     </a>
+                    <a href="#team" className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+                        Team
+                    </a>
                     <a href="#doctor" className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
                         Doctor
                     </a>
@@ -43,7 +46,7 @@ export default function Navbar({ theme, toggleTheme }) {
                     </button>
 
                     <a
-                        href="tel:+919876543210"
+                        href="tel:+919450385590"
                         className="hidden md:flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-full hover:bg-primary/90 transition-colors font-medium shadow-md"
                     >
                         <Phone size={18} />

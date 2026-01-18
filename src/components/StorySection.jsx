@@ -4,50 +4,20 @@ import { motion } from 'framer-motion';
 export default function StorySection({ id, title, children, reversed = false }) {
     // Evolutionarily grounded visuals based on section theme
     const renderVisual = () => {
-        if (id === 'about') {
-            // Chaos -> Order / Biology -> Art
-            return (
-                <div className="relative w-full h-full flex items-center justify-center">
-                    {/* Soft, organic chaos on one side */}
-                    <div className="absolute left-0 w-1/2 h-full opacity-20 bg-gradient-to-r from-primary/40 to-transparent blur-2xl rounded-full animate-pulse"></div>
-                    {/* Organized, geometric structure in center */}
-                    <div className="relative w-48 h-48 border-2 border-primary/30 rounded-full flex items-center justify-center">
-                        <div className="w-32 h-32 border-2 border-primary/50 rounded-full animate-spin-slow"></div>
-                        <div className="absolute w-4 h-4 bg-primary rounded-full shadow-[0_0_20px_rgba(74,144,226,0.5)]"></div>
-                    </div>
-                    <div className="absolute right-0 w-1/2 h-full opacity-10 flex flex-col gap-2 p-12">
-                        {[...Array(5)].map((_, i) => (
-                            <div key={i} className="h-1 bg-primary rounded-full" style={{ width: `${100 - i * 15}%` }}></div>
-                        ))}
-                    </div>
-                </div>
-            );
-        }
-        if (id === 'services') {
-            // Alignment / Predictability / Protective Mechanics
-            return (
-                <div className="relative w-full h-full flex items-center justify-center gap-4">
-                    {[...Array(3)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="w-16 h-48 bg-slate-100 rounded-2xl border border-slate-200 relative overflow-hidden"
-                            initial={{ y: i % 2 === 0 ? -20 : 20 }}
-                            whileInView={{ y: 0 }}
-                            transition={{ duration: 1.5, repeat: Infinity, repeatType: 'reverse' }}
-                        >
-                            <div className="absolute top-0 left-0 w-full h-1/3 bg-primary/10"></div>
-                            <div className="absolute inset-0 flex items-center justify-center text-primary/20 font-bold text-4xl">
-                                {i + 1}
-                            </div>
-                        </motion.div>
-                    ))}
-                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white pointer-events-none"></div>
-                </div>
-            );
-        }
         return (
-            <div className="text-primary font-heading text-6xl opacity-20 group-hover:opacity-40 transition-opacity">
-                UDC
+            <div className="w-full h-full p-8">
+                <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center overflow-hidden border border-dashed border-slate-300 dark:border-slate-600">
+                    <img
+                        src={`https://images.unsplash.com/photo-1629909605125-58da31ffb42f?q=80&w=800&auto=format&fit=crop`}
+                        alt="Clinical Placeholder"
+                        className="w-full h-full object-cover opacity-50 contrast-125 mix-blend-multiply dark:mix-blend-overlay grayscale group-hover:grayscale-0 transition-all duration-700"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-slate-400 font-bold uppercase tracking-widest text-sm bg-white/80 dark:bg-slate-900/80 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700">
+                            3D Frame: {id}
+                        </span>
+                    </div>
+                </div>
             </div>
         );
     };

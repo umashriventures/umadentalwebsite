@@ -64,8 +64,19 @@ export default function Gallery() {
                             transition={{ delay: idx * 0.1 }}
                             viewport={{ once: true }}
                         >
-                            {/* Abstract visual cue for each space */}
-                            <div className="absolute top-12 left-1/2 -translate-x-1/2 w-32 h-32 opacity-10 blur-2xl rounded-full bg-primary group-hover:scale-150 transition-transform duration-700"></div>
+                            {/* Placeholder Image */}
+                            <div className="absolute inset-0 w-full h-full p-4 pb-48">
+                                <div className="w-full h-full bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center">
+                                    <img
+                                        src={`https://images.unsplash.com/photo-1598256989800-fe5f95da9787?q=80&w=400&auto=format&fit=crop`}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover opacity-30 grayscale group-hover:grayscale-0 group-hover:opacity-60 transition-all duration-700 scale-110 group-hover:scale-100"
+                                    />
+                                    <span className="absolute text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">
+                                        Frame: {item.title}
+                                    </span>
+                                </div>
+                            </div>
 
                             <div className="relative z-10 w-full">
                                 <span className={`text-xs font-bold uppercase tracking-widest ${item.textColor} dark:text-primary opacity-60 mb-2 block`}>

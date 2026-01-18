@@ -21,8 +21,7 @@ export default function Footer() {
 
                     <div className="flex flex-col items-center md:items-end text-center md:text-right">
                         <p className="text-slate-600 dark:text-slate-400 mb-2">Hardoi, Uttar Pradesh, India</p>
-                        <p className="text-slate-600 dark:text-slate-400 mb-2">+91 98765 43210</p>
-                        <p className="text-primary hover:underline cursor-pointer">info@umashreedental.com</p>
+                        <p className="text-slate-600 dark:text-slate-400 mb-2">+91 94503 85590</p>
                     </div>
                 </div>
 
